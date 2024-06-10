@@ -126,6 +126,23 @@ app.get('/api/items', (req, res) => {
     });
 });
 
+// Ruta para actualizar el precio de un producto
+app.put('/api/items/:id/price', (req, res) => {
+    const { id } = req.params;
+    const { price } = req.body;
+
+    const query = 'UPDATE products SET price = ? WHERE id = ?';
+
+    db.query(query, [price, id], (err, result) => {
+        if (err) {
+            res.status(500).json({ message: err.message });
+            return;
+        }
+
+        res.status(200).json({ message: 'Precio actualizado correctamente' });
+    });
+});
+
 
 //*end rutas
 

@@ -50,6 +50,8 @@
             }
         }
     </style>
+    <!-- iconos -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <!-- para pdf -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.0/jspdf.umd.min.js"></script>
@@ -59,22 +61,134 @@
 <body>
 
     <div class="container">
-        <center>
-            <h1 class="my-4">PC LPZ</h1>
-        </center>
+        <div class="d-flex justify-content-between align-items-center my-4">
+            <h1 class="flex-grow-1 text-center">PC LPZ</h1>
+
+        </div>
 
         <div id="products-container"></div>
-        <button class="btn btn-primary my-4" onclick="generatePDF()">Generar PDF</button>
+    <button id="btnDescargar" class="btn btn-primary my-4" onclick="descargarPDF()">Descargar PDF</button>
+    
+    <!-- Modal -->
+    <div class="modal fade" id="modal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLabel">Vista Previa del PDF</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modal_contenido">
+                    <!-- Aquí se cargará la vista previa de los productos -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
     </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs/build/css/alertify.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/alertifyjs/build/alertify.min.js"></script>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+
 
     <!-- Bootstrap JS and dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
 
     <script>
-        async function fetchProducts() {
-            const apiUrl = 'http://localhost:5000/api/items'; // Reemplaza con la URL de tu API
+    window.jsPDF = window.jspdf.jsPDF;
+
+        // Función para listar todos los productos disponibles (debes implementarla en tu API)
+            async function listarTodosProductosDisponibles() {
+                const apiUrl = 'https://lista-bay.vercel.app/api/items'; // Reemplaza con la URL de tu API
+                try {
+                    const response = await fetch(apiUrl);
+                    const data = await response.json();
+                    return { estado: true, datos: data }; // Ajusta según la estructura de tu respuesta
+                } catch (error) {
+                    console.error('Error al obtener los datos:', error);
+                    return { estado: false };
+                }
+            }
+       
+       
+        // Función para generar la vista previa de los productos en el modal
+            function elementoProductosListaModal(datos, box) {
+                const container = document.getElementById(box);
+                container.innerHTML = '';
+                datos.forEach(category => {
+                    const categoryDiv = document.createElement('div');
+                    categoryDiv.classList.add('product-category');
+
+                    const categoryTitle = document.createElement('h3');
+                    categoryTitle.classList.add('mt-4');
+                    categoryTitle.textContent = category.name;
+                    categoryDiv.appendChild(categoryTitle);
+
+                    const tableWrapper = document.createElement('div');
+                    tableWrapper.classList.add('table-responsive');
+
+                    const table = document.createElement('table');
+                    table.classList.add('table');
+
+                    const thead = document.createElement('thead');
+                    thead.innerHTML = `
+                <tr>
+                    <th scope="col">Imagen</th>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Precio</th>
+                    <th scope="col">Código</th>
+                </tr>
+            `;
+                    table.appendChild(thead);
+
+                    const tbody = document.createElement('tbody');
+                    category.products.forEach(product => {
+                        const row = document.createElement('tr');
+
+                        const imageCell = document.createElement('td');
+                        const productImage = document.createElement('img');
+                        productImage.src = `https://dorcas.adminsmart.app/images/products/${product.image}`;
+                        productImage.alt = product.name;
+                        productImage.style.width = '30px';
+                        imageCell.appendChild(productImage);
+                        row.appendChild(imageCell);
+
+                        const nameCell = document.createElement('td');
+                        nameCell.textContent = product.name;
+                        row.appendChild(nameCell);
+
+                        const priceCell = document.createElement('td');
+                        priceCell.textContent = `Bs. ${product.price}`;
+                        row.appendChild(priceCell);
+
+                        const codeCell = document.createElement('td');
+                        codeCell.textContent = product.code;
+                        row.appendChild(codeCell);
+
+                        tbody.appendChild(row);
+                    });
+                    table.appendChild(tbody);
+
+                    tableWrapper.appendChild(table);
+                    categoryDiv.appendChild(tableWrapper);
+                    container.appendChild(categoryDiv);
+                });
+            }
+
+       
+            async function fetchProducts() {
+            const apiUrl = 'https://lista-bay.vercel.app/api/items'; // Reemplaza con la URL de tu API
             try {
                 const response = await fetch(apiUrl);
                 const data = await response.json();
@@ -111,6 +225,7 @@
                         <th scope="col">Nombre</th>
                         <th scope="col">Precio</th>
                         <th scope="col">Código</th>
+                        <th scope="col">Acciones</th>
                     </tr>
                 `;
                 table.appendChild(thead);
@@ -130,16 +245,38 @@
                     const nameCell = document.createElement('td');
                     nameCell.textContent = product.name;
                     row.appendChild(nameCell);
-
-                    const priceCell = document.createElement('td');
-                    priceCell.classList.add('text-success');
-                    priceCell.textContent = `Bs. ${product.price}`;
-                    row.appendChild(priceCell);
-
+                    const precioCell = document.createElement('td');
+                     precioCell.classList.add('text-success');
+                    precioCell.textContent =  `Bs. ${product.price}`;
+                    row.appendChild(precioCell);
                     const codeCell = document.createElement('td');
                     codeCell.classList.add('text-primary');
                     codeCell.textContent = product.code;
                     row.appendChild(codeCell);
+
+                    const priceCell = document.createElement('td');
+                    priceCell.classList.add('text-success');
+                    priceCell.innerHTML = `
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton${product.id}" data-bs-toggle="dropdown" aria-expanded="false">
+                               <i class="bi bi-gear"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton${product.id}">
+                                <li>
+                                    <form class="px-4 py-3" onsubmit="updatePrice(event, ${product.id})">
+                                        <div class="mb-3">
+                                            <label for="price${product.id}" class="form-label">Nuevo precio</label>
+                                            <input type="number" class="form-control" id="price${product.id}" value="${product.price}">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Guardar</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    `;
+                    row.appendChild(priceCell);
+
+                    
 
                     tbody.appendChild(row);
                 });
@@ -151,31 +288,160 @@
             });
         }
 
+        async function updatePrice(event, productId) {
+            event.preventDefault();
+            const newPrice = document.getElementById(`price${productId}`).value;
+            const apiUrl = `https://lista-bay.vercel.app/api/items/${productId}/price`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ price: newPrice }),
+                });
+
+                if (response.ok) {
+                    alert('Precio actualizado correctamente');
+                    window.location.reload();
+                } else {
+                    alert('Error al actualizar el precio');
+                }
+            } catch (error) {
+                console.error('Error al actualizar el precio:', error);
+            }
+        }
+
         async function init() {
             const products = await fetchProducts();
             displayProducts(products);
         }
 
-        function generatePDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
+         const descargarPDF = async () => {
+                const data = await listarTodosProductosDisponibles();
+                if (data.estado) {
+                    const modal = new bootstrap.Modal(document.getElementById("modal"), false);
+                    modal.show();
 
-            const productCategories = document.querySelectorAll('.product-category');
-            productCategories.forEach(category => {
-                const title = category.querySelector('h3').textContent;
-                doc.text(title, 10, doc.lastAutoTable ? doc.lastAutoTable.finalY + 10 : 10);
+                    elementoProductosListaModal(data.datos, 'modal_contenido');
 
-                doc.autoTable({
-                    html: category.querySelector('table'),
-                    startY: doc.lastAutoTable ? doc.lastAutoTable.finalY + 10 : 20
-                });
-            });
+                    const modalElement = document.getElementById("modal");
+                    modalElement.addEventListener("shown.bs.modal", function (event) {
+                        // alertify.success("Generando PDF");
+                        // alertify.success("Espera...");
 
-            doc.save('productos.pdf');
-        }
+                        const container = document.querySelector("#modal_contenido");
+                        html2canvas(container, { scale: 0.2 }).then(canvas => {
+                            const doc = new jsPDF({
+                                orientation: 'portrait',
+                                unit: 'mm',
+                                format: [210, 297],
+                                putOnlyUsedFonts: true
+                            });
 
+                            const imgData = canvas.toDataURL('image/png');
+                            doc.html(container, {
+                                callback: function (doc) {
+                                    const date = new Date();
+                                    const formattedDate = date.toISOString().replace(/:/g, '-').slice(0, 19);
+                                    doc.save(`PC-LPZ-${formattedDate}.pdf`);
+                                    //alertify.success("PDF Generado");
+                                    modal.hide();
+                                },
+                                margin: [10, 10, 10, 10],
+                                autoPaging: 'text',
+                                x: 0,
+                                y: 0,
+                                width: 195,
+                                windowWidth: container.scrollWidth
+                            });
+                        });
+                    });
+                } else {
+                    console.log("Sin datos");
+                }
+            }
         window.onload = init;
     </script>
+
+    <style>
+        .td {
+            padding: 0;
+            margin: 0;
+        }
+    
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 5px;
+    
+            background-color: #f8f9fa;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    
+        .header .title {
+            flex-grow: 1;
+            text-align: center;
+            color: #003366;
+            font-size: 1.8rem;
+            /* slightly reduced for better fit */
+            font-weight: bold;
+            margin: 0;
+            /* removing default margins */
+        }
+    
+        .header img {
+            width: 60px;
+            /* slightly bigger */
+            height: auto;
+            /* maintain aspect ratio */
+        }
+    
+        .product-title {
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+            color: #007bff;
+            /* Bootstrap primary color */
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+    
+        .table {
+            background-color: #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+    
+        .table th {
+    
+            color: #fff;
+        }
+    
+        .table td {
+            vertical-align: middle;
+        }
+    
+        .fs-4 {
+            font-size: 16px;
+            /* Adjusting size for readability */
+        }
+    
+        .fs-5 {
+            font-size: 18px;
+        }
+    
+        .btn-outline-secondary {
+            border-color: #007bff;
+            color: #007bff;
+        }
+    
+        .btn-outline-secondary:hover {
+            background-color: #007bff;
+            color: #fff;
+        }
+    </style>
 
 </body>
 
