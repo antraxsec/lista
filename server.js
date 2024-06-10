@@ -38,7 +38,7 @@ app.get('/', (req, res) => {
 });
 
 // Obtener todos los ítems
-app.get('/api/product', (req, res) => {
+app.get('/api/items', (req, res) => {
     const query = `
         SELECT 
             c.id as category_id, 

@@ -108,8 +108,7 @@
     <script>
         window.jsPDF = window.jspdf.jsPDF;
 
-        //const apiUrl = `${window.location.protocol}//${window.location.hostname}:${window.location.port}/api/items`;
-const apiUrl = 'http://localhost:5000/api/items';  // Ajusta según sea necesario
+        const apiUrl = `${window.location.protocol}//${window.location.hostname}:${window.location.port}/api/items`;
 
         // Función para listar todos los productos disponibles (debes implementarla en tu API)
         async function listarTodosProductosDisponibles() {
