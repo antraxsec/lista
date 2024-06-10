@@ -127,7 +127,7 @@
                        
                         <th scope="col">Nombre</th>
                         <th scope="col">Precio</th>
-                        <th scope="col">Código</th>
+                      
                     </tr>
                 `;
                 table.appendChild(thead);
@@ -152,9 +152,9 @@
                     priceCell.textContent = `Bs. ${product.price}`;
                     row.appendChild(priceCell);
 
-                    const codeCell = document.createElement('td');
-                    codeCell.textContent = product.code;
-                    row.appendChild(codeCell);
+                    // const codeCell = document.createElement('td');
+                    // codeCell.textContent = product.code;
+                    // row.appendChild(codeCell);
 
                     tbody.appendChild(row);
                 });
