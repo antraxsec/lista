@@ -67,25 +67,25 @@
         </div>
 
         <div id="products-container"></div>
-    <button id="btnDescargar" class="btn btn-primary my-4" onclick="descargarPDF()">Descargar PDF</button>
-    
-    <!-- Modal -->
-    <div class="modal fade" id="modal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalLabel">Vista Previa del PDF</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="modal_contenido">
-                    <!-- Aquí se cargará la vista previa de los productos -->
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button id="btnDescargar" class="btn btn-primary my-4" onclick="descargarPDF()">Descargar PDF</button>
+
+        <!-- Modal -->
+        <div class="modal fade" id="modal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalLabel">Vista Previa del PDF</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="modal_contenido">
+                        <!-- Aquí se cargará la vista previa de los productos -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -106,89 +106,87 @@
         crossorigin="anonymous"></script>
 
     <script>
-    window.jsPDF = window.jspdf.jsPDF;
+        window.jsPDF = window.jspdf.jsPDF;
+
+        const apiUrl = `${window.location.protocol}//${window.location.hostname}:${window.location.port}/api/items`;
 
         // Función para listar todos los productos disponibles (debes implementarla en tu API)
-            async function listarTodosProductosDisponibles() {
-                const apiUrl = 'https://lista-bay.vercel.app/api/items'; // Reemplaza con la URL de tu API
-                try {
-                    const response = await fetch(apiUrl);
-                    const data = await response.json();
-                    return { estado: true, datos: data }; // Ajusta según la estructura de tu respuesta
-                } catch (error) {
-                    console.error('Error al obtener los datos:', error);
-                    return { estado: false };
-                }
+        async function listarTodosProductosDisponibles() {
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                return { estado: true, datos: data }; // Ajusta según la estructura de tu respuesta
+            } catch (error) {
+                console.error('Error al obtener los datos:', error);
+                return { estado: false };
             }
-       
-       
+        }
+
         // Función para generar la vista previa de los productos en el modal
-            function elementoProductosListaModal(datos, box) {
-                const container = document.getElementById(box);
-                container.innerHTML = '';
-                datos.forEach(category => {
-                    const categoryDiv = document.createElement('div');
-                    categoryDiv.classList.add('product-category');
+        function elementoProductosListaModal(datos, box) {
+            const container = document.getElementById(box);
+            container.innerHTML = '';
+            datos.forEach(category => {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.classList.add('product-category');
 
-                    const categoryTitle = document.createElement('h3');
-                    categoryTitle.classList.add('mt-4');
-                    categoryTitle.textContent = category.name;
-                    categoryDiv.appendChild(categoryTitle);
+                const categoryTitle = document.createElement('h3');
+                categoryTitle.classList.add('mt-4');
+                categoryTitle.textContent = category.name;
+                categoryDiv.appendChild(categoryTitle);
 
-                    const tableWrapper = document.createElement('div');
-                    tableWrapper.classList.add('table-responsive');
+                const tableWrapper = document.createElement('div');
+                tableWrapper.classList.add('table-responsive');
 
-                    const table = document.createElement('table');
-                    table.classList.add('table');
+                const table = document.createElement('table');
+                table.classList.add('table');
 
-                    const thead = document.createElement('thead');
-                    thead.innerHTML = `
-                <tr>
-                    <th scope="col">Imagen</th>
-                    <th scope="col">Nombre</th>
-                    <th scope="col">Precio</th>
-                    <th scope="col">Código</th>
-                </tr>
-            `;
-                    table.appendChild(thead);
+                const thead = document.createElement('thead');
+                thead.innerHTML = `
+                    <tr>
+                        <th scope="col">Imagen</th>
+                        <th scope="col">Nombre</th>
+                        <th scope="col">Precio</th>
+                        <th scope="col">Código</th>
+                    </tr>
+                `;
+                table.appendChild(thead);
 
-                    const tbody = document.createElement('tbody');
-                    category.products.forEach(product => {
-                        const row = document.createElement('tr');
+                const tbody = document.createElement('tbody');
+                category.products.forEach(product => {
+                    const row = document.createElement('tr');
 
-                        const imageCell = document.createElement('td');
-                        const productImage = document.createElement('img');
-                        productImage.src = `https://dorcas.adminsmart.app/images/products/${product.image}`;
-                        productImage.alt = product.name;
-                        productImage.style.width = '30px';
-                        imageCell.appendChild(productImage);
-                        row.appendChild(imageCell);
+                    const imageCell = document.createElement('td');
+                    const productImage = document.createElement('img');
+                    productImage.src = `https://dorcas.adminsmart.app/images/products/${product.image}`;
+                    productImage.alt = product.name;
+                    productImage.style.width = '30px';
+                    imageCell.appendChild(productImage);
+                    row.appendChild(imageCell);
 
-                        const nameCell = document.createElement('td');
-                        nameCell.textContent = product.name;
-                        row.appendChild(nameCell);
+                    const nameCell = document.createElement('td');
+                    nameCell.textContent = product.name;
+                    row.appendChild(nameCell);
 
-                        const priceCell = document.createElement('td');
-                        priceCell.textContent = `Bs. ${product.price}`;
-                        row.appendChild(priceCell);
+                    const priceCell = document.createElement('td');
+                    priceCell.textContent = `Bs. ${product.price}`;
+                    row.appendChild(priceCell);
 
-                        const codeCell = document.createElement('td');
-                        codeCell.textContent = product.code;
-                        row.appendChild(codeCell);
+                    const codeCell = document.createElement('td');
+                    codeCell.textContent = product.code;
+                    row.appendChild(codeCell);
 
-                        tbody.appendChild(row);
-                    });
-                    table.appendChild(tbody);
-
-                    tableWrapper.appendChild(table);
-                    categoryDiv.appendChild(tableWrapper);
-                    container.appendChild(categoryDiv);
+                    tbody.appendChild(row);
                 });
-            }
+                table.appendChild(tbody);
 
-       
-            async function fetchProducts() {
-            const apiUrl = 'https://lista-bay.vercel.app/api/items'; // Reemplaza con la URL de tu API
+                tableWrapper.appendChild(table);
+                categoryDiv.appendChild(tableWrapper);
+                container.appendChild(categoryDiv);
+            });
+        }
+
+        async function fetchProducts() {
             try {
                 const response = await fetch(apiUrl);
                 const data = await response.json();
@@ -245,10 +243,12 @@
                     const nameCell = document.createElement('td');
                     nameCell.textContent = product.name;
                     row.appendChild(nameCell);
+
                     const precioCell = document.createElement('td');
-                     precioCell.classList.add('text-success');
-                    precioCell.textContent =  `Bs. ${product.price}`;
+                    precioCell.classList.add('text-success');
+                    precioCell.textContent = `Bs. ${product.price}`;
                     row.appendChild(precioCell);
+
                     const codeCell = document.createElement('td');
                     codeCell.classList.add('text-primary');
                     codeCell.textContent = product.code;
@@ -276,8 +276,6 @@
                     `;
                     row.appendChild(priceCell);
 
-                    
-
                     tbody.appendChild(row);
                 });
                 table.appendChild(tbody);
@@ -291,10 +289,9 @@
         async function updatePrice(event, productId) {
             event.preventDefault();
             const newPrice = document.getElementById(`price${productId}`).value;
-            const apiUrl = `https://lista-bay.vercel.app/api/items/${productId}/price`;
 
             try {
-                const response = await fetch(apiUrl, {
+                const response = await fetch(`${apiUrl}/${productId}/price`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -318,50 +315,47 @@
             displayProducts(products);
         }
 
-         const descargarPDF = async () => {
-                const data = await listarTodosProductosDisponibles();
-                if (data.estado) {
-                    const modal = new bootstrap.Modal(document.getElementById("modal"), false);
-                    modal.show();
+        const descargarPDF = async () => {
+            const data = await listarTodosProductosDisponibles();
+            if (data.estado) {
+                const modal = new bootstrap.Modal(document.getElementById("modal"), false);
+                modal.show();
 
-                    elementoProductosListaModal(data.datos, 'modal_contenido');
+                elementoProductosListaModal(data.datos, 'modal_contenido');
 
-                    const modalElement = document.getElementById("modal");
-                    modalElement.addEventListener("shown.bs.modal", function (event) {
-                        // alertify.success("Generando PDF");
-                        // alertify.success("Espera...");
+                const modalElement = document.getElementById("modal");
+                modalElement.addEventListener("shown.bs.modal", function (event) {
+                    const container = document.querySelector("#modal_contenido");
+                    html2canvas(container, { scale: 0.2 }).then(canvas => {
+                        const doc = new jsPDF({
+                            orientation: 'portrait',
+                            unit: 'mm',
+                            format: [210, 297],
+                            putOnlyUsedFonts: true
+                        });
 
-                        const container = document.querySelector("#modal_contenido");
-                        html2canvas(container, { scale: 0.2 }).then(canvas => {
-                            const doc = new jsPDF({
-                                orientation: 'portrait',
-                                unit: 'mm',
-                                format: [210, 297],
-                                putOnlyUsedFonts: true
-                            });
-
-                            const imgData = canvas.toDataURL('image/png');
-                            doc.html(container, {
-                                callback: function (doc) {
-                                    const date = new Date();
-                                    const formattedDate = date.toISOString().replace(/:/g, '-').slice(0, 19);
-                                    doc.save(`PC-LPZ-${formattedDate}.pdf`);
-                                    //alertify.success("PDF Generado");
-                                    modal.hide();
-                                },
-                                margin: [10, 10, 10, 10],
-                                autoPaging: 'text',
-                                x: 0,
-                                y: 0,
-                                width: 195,
-                                windowWidth: container.scrollWidth
-                            });
+                        const imgData = canvas.toDataURL('image/png');
+                        doc.html(container, {
+                            callback: function (doc) {
+                                const date = new Date();
+                                const formattedDate = date.toISOString().replace(/:/g, '-').slice(0, 19);
+                                doc.save(`PC-LPZ-${formattedDate}.pdf`);
+                                modal.hide();
+                            },
+                            margin: [10, 10, 10, 10],
+                            autoPaging: 'text',
+                            x: 0,
+                            y: 0,
+                            width: 195,
+                            windowWidth: container.scrollWidth
                         });
                     });
-                } else {
-                    console.log("Sin datos");
-                }
+                });
+            } else {
+                console.log("Sin datos");
             }
+        }
+
         window.onload = init;
     </script>
 
@@ -370,73 +364,65 @@
             padding: 0;
             margin: 0;
         }
-    
+
         .header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             margin-bottom: 5px;
-    
             background-color: #f8f9fa;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-    
+
         .header .title {
             flex-grow: 1;
             text-align: center;
             color: #003366;
             font-size: 1.8rem;
-            /* slightly reduced for better fit */
             font-weight: bold;
             margin: 0;
-            /* removing default margins */
         }
-    
+
         .header img {
             width: 60px;
-            /* slightly bigger */
             height: auto;
-            /* maintain aspect ratio */
         }
-    
+
         .product-title {
             font-size: 12px;
             font-weight: bold;
             text-align: center;
             color: #007bff;
-            /* Bootstrap primary color */
             margin-top: 1rem;
             margin-bottom: 1rem;
         }
-    
+
         .table {
             background-color: #fff;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
-    
+
         .table th {
-    
             color: #fff;
         }
-    
+
         .table td {
             vertical-align: middle;
         }
-    
+
         .fs-4 {
             font-size: 16px;
-            /* Adjusting size for readability */
         }
-    
+
         .fs-5 {
             font-size: 18px;
         }
-    
+
         .btn-outline-secondary {
             border-color: #007bff;
             color: #007bff;
         }
-    
+
         .btn-outline-secondary:hover {
             background-color: #007bff;
             color: #fff;
