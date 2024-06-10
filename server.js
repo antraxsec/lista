@@ -1,9 +1,13 @@
 const express = require('express');
 const mysql = require('mysql2');
 const path = require('path');
+const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Habilitar CORS
+app.use(cors());
 
 // Configuración de la conexión a la base de datos
 const db = mysql.createConnection({
@@ -25,7 +29,6 @@ db.connect((err) => {
 // Middleware para parsear JSON
 app.use(express.json());
 
-// Ruta de prueba
 // Servir archivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -33,9 +36,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
-/**
- **rotas de producto
- */
+
 // Obtener todos los ítems
 app.get('/api/items', (req, res) => {
     const query = `
@@ -142,9 +143,6 @@ app.put('/api/items/:id/price', (req, res) => {
         res.status(200).json({ message: 'Precio actualizado correctamente' });
     });
 });
-
-
-//*end rutas
 
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en el puerto ${PORT}`);
