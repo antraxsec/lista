@@ -5,33 +5,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Productos</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
         }
 
-        h1 {
-            font-size: 2rem;
-        }
-
+        h1,
         h3 {
-            font-size: 1.5rem;
+            margin: 0.5rem 0;
         }
 
         .table th,
         .table td {
+            padding: 8px;
             font-size: 0.8rem;
         }
 
-        .product-category {
-            margin-bottom: 1.5rem;
-        }
-
         img {
-            max-width: 100%;
+            max-width: 100px;
             height: auto;
         }
 
@@ -50,36 +43,22 @@
             }
         }
     </style>
-    <!-- iconos -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
-    <!-- para pdf -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.0/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script>
 </head>
 
 <body>
-
     <div class="container">
-        <div class="d-flex justify-content-between align-items-center my-4">
-            <h1 class="flex-grow-1 text-center">PC LPZ</h1>
-
-        </div>
-
+        <h1 class="text-center my-4">PC LPZ</h1>
         <div id="products-container"></div>
-        <button id="btnDescargar" class="btn btn-primary my-4" onclick="descargarPDF()">Descargar PDF</button>
+        <button class="btn btn-primary my-4" onclick="descargarPDF()">Descargar PDF</button>
 
-        <!-- Modal -->
         <div class="modal fade" id="modal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
+            <div class="modal-dialog modal-fullscreen">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="modalLabel">Vista Previa del PDF</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body" id="modal_contenido">
-                        <!-- Aquí se cargará la vista previa de los productos -->
-                    </div>
+                    <div class="modal-body" id="modal_contenido"></div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                     </div>
@@ -88,27 +67,20 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs/build/css/alertify.min.css" />
-    <script src="https://cdn.jsdelivr.net/npm/alertifyjs/build/alertify.min.js"></script>
-
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
-
-
-    <!-- Bootstrap JS and dependencies -->
+    <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alertifyjs/build/alertify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script>
 
     <script>
         window.jsPDF = window.jspdf.jsPDF;
 
-        const apiUrl = `${window.location.protocol}//${window.location.hostname}:${window.location.port}/api/items`;
+        const apiUrl = `https://dorback.vercel.app/api/items`;
 
         // Función para listar todos los productos disponibles (debes implementarla en tu API)
         async function listarTodosProductosDisponibles() {
@@ -126,6 +98,14 @@
         function elementoProductosListaModal(datos, box) {
             const container = document.getElementById(box);
             container.innerHTML = '';
+
+            // Crear y agregar el título principal
+            const mainTitle = document.createElement('h1');
+            mainTitle.classList.add('text-center', 'mb-4'); // Añadir clases para estilos
+            mainTitle.textContent = 'MAG COMP';
+            container.appendChild(mainTitle); // Agregar el título al contenedor principal
+
+
             datos.forEach(category => {
                 const categoryDiv = document.createElement('div');
                 categoryDiv.classList.add('product-category');
@@ -144,7 +124,7 @@
                 const thead = document.createElement('thead');
                 thead.innerHTML = `
                     <tr>
-                        <th scope="col">Imagen</th>
+                       
                         <th scope="col">Nombre</th>
                         <th scope="col">Precio</th>
                         <th scope="col">Código</th>
@@ -156,13 +136,13 @@
                 category.products.forEach(product => {
                     const row = document.createElement('tr');
 
-                    const imageCell = document.createElement('td');
-                    const productImage = document.createElement('img');
-                    productImage.src = `https://dorcas.adminsmart.app/images/products/${product.image}`;
-                    productImage.alt = product.name;
-                    productImage.style.width = '30px';
-                    imageCell.appendChild(productImage);
-                    row.appendChild(imageCell);
+                    // const imageCell = document.createElement('td');
+                    // const productImage = document.createElement('img');
+                    // productImage.src = `https://dorcas.adminsmart.app/images/products/${product.image}`;
+                    // productImage.alt = product.name;
+                    // productImage.style.width = '30px';   
+                    // imageCell.appendChild(productImage);
+                    // row.appendChild(imageCell);
 
                     const nameCell = document.createElement('td');
                     nameCell.textContent = product.name;
@@ -327,6 +307,7 @@
                 modalElement.addEventListener("shown.bs.modal", function (event) {
                     const container = document.querySelector("#modal_contenido");
                     html2canvas(container, { scale: 0.2 }).then(canvas => {
+                        const imgData = canvas.toDataURL('image/png');
                         const doc = new jsPDF({
                             orientation: 'portrait',
                             unit: 'mm',
@@ -334,20 +315,18 @@
                             putOnlyUsedFonts: true
                         });
 
-                        const imgData = canvas.toDataURL('image/png');
                         doc.html(container, {
                             callback: function (doc) {
-                                const date = new Date();
-                                const formattedDate = date.toISOString().replace(/:/g, '-').slice(0, 19);
-                                doc.save(`PC-LPZ-${formattedDate}.pdf`);
+                                doc.save(`PC-LPZ-${new Date().toISOString()}.pdf`);
                                 modal.hide();
                             },
                             margin: [10, 10, 10, 10],
                             autoPaging: 'text',
-                            x: 0,
-                            y: 0,
+                            x: 10,
+                            y: 10,
                             width: 195,
-                            windowWidth: container.scrollWidth
+                            windowWidth: container.scrollWidth,
+                            autoPaging: true
                         });
                     });
                 });
@@ -359,75 +338,7 @@
         window.onload = init;
     </script>
 
-    <style>
-        .td {
-            padding: 0;
-            margin: 0;
-        }
 
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 5px;
-            background-color: #f8f9fa;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .header .title {
-            flex-grow: 1;
-            text-align: center;
-            color: #003366;
-            font-size: 1.8rem;
-            font-weight: bold;
-            margin: 0;
-        }
-
-        .header img {
-            width: 60px;
-            height: auto;
-        }
-
-        .product-title {
-            font-size: 12px;
-            font-weight: bold;
-            text-align: center;
-            color: #007bff;
-            margin-top: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .table {
-            background-color: #fff;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        .table th {
-            color: #fff;
-        }
-
-        .table td {
-            vertical-align: middle;
-        }
-
-        .fs-4 {
-            font-size: 16px;
-        }
-
-        .fs-5 {
-            font-size: 18px;
-        }
-
-        .btn-outline-secondary {
-            border-color: #007bff;
-            color: #007bff;
-        }
-
-        .btn-outline-secondary:hover {
-            background-color: #007bff;
-            color: #fff;
-        }
-    </style>
 
 </body>
 
