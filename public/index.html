@@ -42,6 +42,11 @@
                 font-size: 0.7rem;
             }
         }
+
+        .modal-body{
+            width: 1024px;
+        }
+    
     </style>
 </head>
 
@@ -85,8 +90,9 @@
         // Función para listar todos los productos disponibles (debes implementarla en tu API)
         async function listarTodosProductosDisponibles() {
             try {
-                const response = await fetch(apiUrl);
+                const response = await fetch(`${apiUrl}`);
                 const data = await response.json();
+                console.log(data)
                 return { estado: true, datos: data }; // Ajusta según la estructura de tu respuesta
             } catch (error) {
                 console.error('Error al obtener los datos:', error);
@@ -266,9 +272,11 @@
             });
         }
 
-        async function updatePrice(event, productId) {
+      async function updatePrice(event, productId) {
             event.preventDefault();
             const newPrice = document.getElementById(`price${productId}`).value;
+
+            console.log(newPrice)
 
             try {
                 const response = await fetch(`${apiUrl}/${productId}/price`, {
@@ -276,14 +284,15 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ price: newPrice }),
+                    body: JSON.stringify({ price: parseFloat(newPrice) }),
                 });
 
                 if (response.ok) {
                     alert('Precio actualizado correctamente');
                     window.location.reload();
                 } else {
-                    alert('Error al actualizar el precio');
+                    const errorResponse = await response.json();
+                    alert(`Error al actualizar el precio: ${errorResponse.message}`);
                 }
             } catch (error) {
                 console.error('Error al actualizar el precio:', error);
@@ -318,9 +327,9 @@
                         doc.html(container, {
                             callback: function (doc) {
                                 doc.save(`PC-LPZ-${new Date().toISOString()}.pdf`);
-                                modal.hide();
+                               // modal.hide();
                             },
-                            margin: [10, 10, 10, 10],
+                            margin: [10, 10, 25, 10],
                             autoPaging: 'text',
                             x: 10,
                             y: 10,
