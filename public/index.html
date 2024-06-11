@@ -52,7 +52,15 @@
 
 <body>
     <div class="container">
-        <h1 class="text-center my-4">PC LPZ</h1>
+        <div class="mb-4">
+            <label for="sucursalSelector" class="form-label">Seleccione una Sucursal:</label>
+            <select class="form-select" id="sucursalSelector" onchange="displayProductsByWarehouse()">
+                <option value="all">Todas</option>
+                <option value="Sucursal - La Paz">Sucursal - La Paz</option>
+                <option value="Sucursal - Santa Cruz">Sucursal - Santa Cruz</option>
+            </select>
+        </div>
+        <h1 class="text-center my-4">MAG COMP</h1>
         <div id="products-container"></div>
         <button class="btn btn-primary my-4" onclick="descargarPDF()">Descargar PDF</button>
 
@@ -183,92 +191,87 @@
             }
         }
 
-        function displayProducts(products) {
+      function displayProducts(products) {
+            const selectedWarehouse = document.getElementById('sucursalSelector').value;
             const container = document.getElementById('products-container');
             container.innerHTML = '';
 
             products.forEach(category => {
-                const categoryDiv = document.createElement('div');
-                categoryDiv.classList.add('product-category');
+                if (category.products.length > 0) {
+                    const categoryDiv = document.createElement('div');
+                    categoryDiv.classList.add('product-category');
 
-                const categoryTitle = document.createElement('h3');
-                categoryTitle.classList.add('mt-4');
-                categoryTitle.textContent = category.name;
-                categoryDiv.appendChild(categoryTitle);
+                    const categoryTitle = document.createElement('h3');
+                    categoryTitle.classList.add('mt-4');
+                    categoryTitle.textContent = category.name;
+                    categoryDiv.appendChild(categoryTitle);
 
-                const tableWrapper = document.createElement('div');
-                tableWrapper.classList.add('table-responsive');
+                    const tableWrapper = document.createElement('div');
+                    tableWrapper.classList.add('table-responsive');
 
-                const table = document.createElement('table');
-                table.classList.add('table');
+                    const table = document.createElement('table');
+                    table.classList.add('table');
 
-                const thead = document.createElement('thead');
-                thead.innerHTML = `
-                    <tr>
-                        <th scope="col">Imagen</th>
-                        <th scope="col">Nombre</th>
-                        <th scope="col">Precio</th>
-                        <th scope="col">Código</th>
-                        <th scope="col">Acciones</th>
-                    </tr>
-                `;
-                table.appendChild(thead);
+                    const thead = document.createElement('thead');
+                    thead.innerHTML = `
+                <tr>
+                    <th scope="col">Imagen</th>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Cantidad</th>
+                    <th scope="col">Precio</th>
+                    <th scope="col">Código</th>
+                    <th scope="col">Acciones</th>
+                </tr>
+            `;
+                    table.appendChild(thead);
 
-                const tbody = document.createElement('tbody');
-                category.products.forEach(product => {
-                    const row = document.createElement('tr');
+                    const tbody = document.createElement('tbody');
+                    category.products.forEach(product => {
+                        const warehouseInfo = product.warehouses.find(warehouse => warehouse.warehouse_name === selectedWarehouse) || { quantity: 0 };
 
-                    const imageCell = document.createElement('td');
-                    const productImage = document.createElement('img');
-                    productImage.src = `https://dorcas.adminsmart.app/images/products/${product.image}`;
-                    productImage.alt = product.name;
-                    productImage.style.width = '30px';
-                    imageCell.appendChild(productImage);
-                    row.appendChild(imageCell);
+                        if (warehouseInfo.quantity > 0) {
+                            const row = document.createElement('tr');
 
-                    const nameCell = document.createElement('td');
-                    nameCell.textContent = product.name;
-                    row.appendChild(nameCell);
+                            const imageCell = document.createElement('td');
+                            const productImage = document.createElement('img');
+                            productImage.src = `https://dorcas.adminsmart.app/images/products/${product.image}`;
+                            productImage.alt = product.name;
+                            productImage.style.width = '30px';
+                            imageCell.appendChild(productImage);
+                            row.appendChild(imageCell);
 
-                    const precioCell = document.createElement('td');
-                    precioCell.classList.add('text-success');
-                    precioCell.textContent = `Bs. ${product.price}`;
-                    row.appendChild(precioCell);
+                            const nameCell = document.createElement('td');
+                            nameCell.textContent = product.name;
+                            row.appendChild(nameCell);
 
-                    const codeCell = document.createElement('td');
-                    codeCell.classList.add('text-primary');
-                    codeCell.textContent = product.code;
-                    row.appendChild(codeCell);
+                            const cantidadCell = document.createElement('td');
+                            cantidadCell.textContent = warehouseInfo.quantity;
+                            row.appendChild(cantidadCell);
 
-                    const priceCell = document.createElement('td');
-                    priceCell.classList.add('text-success');
-                    priceCell.innerHTML = `
-                        <div class="dropdown">
-                            <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton${product.id}" data-bs-toggle="dropdown" aria-expanded="false">
-                               <i class="bi bi-gear"></i>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton${product.id}">
-                                <li>
-                                    <form class="px-4 py-3" onsubmit="updatePrice(event, ${product.id})">
-                                        <div class="mb-3">
-                                            <label for="price${product.id}" class="form-label">Nuevo precio</label>
-                                            <input type="number" class="form-control" id="price${product.id}" value="${product.price}">
-                                        </div>
-                                        <button type="submit" class="btn btn-primary">Guardar</button>
-                                    </form>
-                                </li>
-                            </ul>
-                        </div>
-                    `;
-                    row.appendChild(priceCell);
+                            const precioCell = document.createElement('td');
+                            precioCell.classList.add('text-success');
+                            precioCell.textContent = `Bs. ${product.price}`;
+                            row.appendChild(precioCell);
 
-                    tbody.appendChild(row);
-                });
-                table.appendChild(tbody);
+                            const codeCell = document.createElement('td');
+                            codeCell.classList.add('text-primary');
+                            codeCell.textContent = product.code;
+                            row.appendChild(codeCell);
 
-                tableWrapper.appendChild(table);
-                categoryDiv.appendChild(tableWrapper);
-                container.appendChild(categoryDiv);
+                            const actionsCell = document.createElement('td');
+                            actionsCell.innerHTML = `<button class="btn btn-secondary btn-sm">Editar</button>`; // Modificar según las acciones que quieras permitir
+                            row.appendChild(actionsCell);
+
+                            tbody.appendChild(row);
+                        }
+                    });
+                    if (tbody.hasChildNodes()) {
+                        table.appendChild(tbody);
+                        tableWrapper.appendChild(table);
+                        categoryDiv.appendChild(tableWrapper);
+                        container.appendChild(categoryDiv);
+                    }
+                }
             });
         }
 
@@ -304,13 +307,37 @@
             displayProducts(products);
         }
 
-        const descargarPDF = async () => {
-            const data = await listarTodosProductosDisponibles();
-            if (data.estado) {
+     const descargarPDF = async () => {
+            // Obtener datos filtrados basados en la selección actual de la sucursal
+            const selectedWarehouse = document.getElementById('sucursalSelector').value;
+            const allProducts = await fetchProducts();
+            let filteredProducts;
+            if (selectedWarehouse === 'all') {
+                filteredProducts = allProducts.filter(category => category.products.some(product =>
+                    product.warehouses.some(warehouse => warehouse.quantity > 0)
+                )).map(category => ({
+                    ...category,
+                    products: category.products.filter(product =>
+                        product.warehouses.some(warehouse => warehouse.quantity > 0)
+                    )
+                }));
+            } else {
+                filteredProducts = allProducts.filter(category => category.products.some(product =>
+                    product.warehouses.some(warehouse => warehouse.warehouse_name === selectedWarehouse && warehouse.quantity > 0)
+                )).map(category => ({
+                    ...category,
+                    products: category.products.filter(product =>
+                        product.warehouses.some(warehouse => warehouse.warehouse_name === selectedWarehouse && warehouse.quantity > 0)
+                    )
+                }));
+            }
+
+            // Mostrar los datos filtrados en el modal
+            if (filteredProducts.length > 0) {
                 const modal = new bootstrap.Modal(document.getElementById("modal"), false);
                 modal.show();
 
-                elementoProductosListaModal(data.datos, 'modal_contenido');
+                elementoProductosListaModal(filteredProducts, 'modal_contenido');
 
                 const modalElement = document.getElementById("modal");
                 modalElement.addEventListener("shown.bs.modal", function (event) {
@@ -327,7 +354,7 @@
                         doc.html(container, {
                             callback: function (doc) {
                                 doc.save(`PC-LPZ-${new Date().toISOString()}.pdf`);
-                               // modal.hide();
+                                modal.hide();
                             },
                             margin: [10, 10, 25, 10],
                             autoPaging: 'text',
@@ -340,11 +367,40 @@
                     });
                 });
             } else {
-                console.log("Sin datos");
+                alert("No hay datos disponibles para imprimir.");
             }
         }
 
         window.onload = init;
+
+      async function displayProductsByWarehouse() {
+            const selectedWarehouse = document.getElementById('sucursalSelector').value;
+            const allProducts = await fetchProducts(); // Esta función debe obtener todos los datos necesarios
+
+            let filteredProducts;
+            if (selectedWarehouse === 'all') {
+                filteredProducts = allProducts.filter(category => category.products.some(product =>
+                    product.warehouses.some(warehouse => warehouse.quantity > 0)
+                )).map(category => ({
+                    ...category,
+                    products: category.products.filter(product =>
+                        product.warehouses.some(warehouse => warehouse.quantity > 0)
+                    )
+                }));
+            } else {
+                filteredProducts = allProducts.filter(category => category.products.some(product =>
+                    product.warehouses.some(warehouse => warehouse.warehouse_name === selectedWarehouse && warehouse.quantity > 0)
+                )).map(category => ({
+                    ...category,
+                    products: category.products.filter(product =>
+                        product.warehouses.some(warehouse => warehouse.warehouse_name === selectedWarehouse && warehouse.quantity > 0)
+                    )
+                }));
+            }
+
+            displayProducts(filteredProducts);
+        }
+
     </script>
 
 
